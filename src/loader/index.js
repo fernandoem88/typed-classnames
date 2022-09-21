@@ -19,7 +19,7 @@ function rccLoader(content, map, meta) {
   options._exportable = helpers.getExportTypes(this.resource, options)
 
   const {
-    rcc: exportableRCC,
+    rccs: exportableRCC,
     style: exportableStyle,
     $cn: exportableCN
   } = options._exportable
@@ -160,8 +160,10 @@ function rccLoader(content, map, meta) {
   const rccImport =
     exportableRCC || exportableCN
       ? helpers.createStringContent([
-          `import { styleParser } from 'typed-classnames/dist/rcc-core';`,
-          `import { RCC } from 'typed-classnames/dist/src/typings';\n`
+          `import { styleParser } from 'typed-classnames/core';`,
+          exportableRCC
+            ? `import { RCC } from 'typed-classnames/dist/src/typings';\n`
+            : ''
         ])
       : ''
 

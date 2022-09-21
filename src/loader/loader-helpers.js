@@ -189,14 +189,14 @@ function getExportTypes(resource, options) {
     const paths = resource.split(pathSeparator)
     const fileName = paths.pop()
     const {
-      rcc = false,
+      rccs = false,
       style = false,
       $cn = false
     } = exports(fileName, paths.join(pathSeparator))
-    return { rcc, style, $cn }
+    return { rccs, style, $cn }
   }
-  const { rcc = false, style = false, $cn = false } = exports
-  return { rcc, style, $cn }
+  const { rccs = false, style = false, $cn = false } = exports
+  return { rccs, style, $cn }
 }
 
 function getHasGlobalProps(components) {

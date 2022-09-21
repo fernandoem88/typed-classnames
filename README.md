@@ -89,7 +89,7 @@ styleCompiler('./my-app.module.scss', __dirname, { exports: { $cn: true } })
 this configuration will generate the following file content
 
 ```tsx
-import { styleParser } from 'typed-classnames/dist/rcc-core'
+import { styleParser } from 'typed-classnames/core'
 import { RCC } from 'typed-classnames/dist/src/typings'
 import _style from './my-app.module.scss'
 
@@ -122,6 +122,13 @@ export const $cn = data.$cn as {
 }
 
 // ##hash##
+```
+
+NOTE: in case your IDE complains about "typed-classnames/core". you can add a declaration file to your project
+
+```ts
+// index.d.ts
+declare module 'typed-classnames/core'
 ```
 
 now we can use it in our main component _MyComponent.tsx_
@@ -438,7 +445,7 @@ we can set the rcc \_\_prefix\_\_ value to a more specific name, for example to 
 
 import Card from './my-style.rcc'
 
-Card.__prefix__ = "Card."
+(Card as any).__prefix__ = "Card."
 
 export const MyComponent = () => {
   return <Card.Root.div>Hello World</S.Root.div>

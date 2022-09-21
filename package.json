@@ -10,11 +10,12 @@
   "description": "react css components loader - easy way to use css module in react components with typescript",
   "license": "MIT",
   "repository": "https://github.com/fernandoem88/typed-classnames",
-  "main": "dist/loader.js",
+  "main": "dist/loader.umd.js",
   "source": "src/loader/index.js",
   "exports": {
-    ".": "./dist/loader.js",
-    "./core": "./dist/rcc-core.modern.mjs"
+    ".": "./dist/loader.umd.js",
+    "./core": "./dist/rcc-core.umd.js",
+    "./dist/rcc-core.umd": "./dist/rcc-core.umd.js"
   },
   "engines": {
     "node": ">=10"
