@@ -292,7 +292,7 @@ function getNewFileName(resource, options) {
 
 function getShouldCompileFromHash({ classNames, options, resource, rootDir }) {
   const esoHash = options._exportable.style ? '#stl_expo; ' : ''
-  const rccHash = options._exportable.rcc ? '#rcc_expo; ' : ''
+  const rccHash = options._exportable.rccs ? '#rccs_expo; ' : ''
   const $cnHash = options._exportable.$cn ? '#$cn_expo; ' : ''
   const classesHash = `#clases=${classNames.join('|')};`
   const outputFilenameHash = `#ofn=${options._outputFileName};`

@@ -17,14 +17,14 @@ function rccLoader(content, map, meta) {
   const resourceFileName = paths.pop()
 
   options._exportable = helpers.getExportTypes(this.resource, options)
-
+  options._logger = this.getLogger()
   const {
-    rccs: exportableRCC,
     style: exportableStyle,
-    $cn: exportableCN
+    $cn: exportableCN,
+    rccs: exportableRCCs
   } = options._exportable
 
-  if (!exportableRCC && !exportableStyle && !exportableCN) {
+  if (!exportableRCCs && !exportableStyle && !exportableCN) {
     options._logger('rcc loader disabled')
     return content
   }
@@ -32,7 +32,6 @@ function rccLoader(content, map, meta) {
   options._getFSModule = () => this.fs
   options._resource = this.resource.replace(this.rootContext, '.')
   options._outputFileName = helpers.getNewFileName(this.resource, options)
-  options._logger = this.getLogger()
 
   options._outputFilePath = utils.path.resolve(
     paths.join(pathSeparator),
@@ -56,7 +55,7 @@ function rccLoader(content, map, meta) {
   let styleModuleType = ''
   classNamesArray.forEach((className) => {
     styleModuleType = helpers.createStyleType(className, styleModuleType)
-    if (exportableRCC || exportableCN) {
+    if (exportableRCCs || exportableCN) {
       helpers.addParsedClassNameData(className, components)
     }
   })
@@ -116,7 +115,7 @@ function rccLoader(content, map, meta) {
   }
   const rccNewLine = exportableCN ? '\n' : ''
 
-  const rccComponentsImplementation = exportableRCC
+  const rccComponentsImplementation = exportableRCCs
     ? helpers.createStringContent([
         `${rccNewLine}const cssComponents = data.rccs as {`,
         `  ${getItemsDefinition('RCC')}`,
@@ -137,10 +136,10 @@ function rccLoader(content, map, meta) {
     ? '\ntype CN<P> = (props?: P) => string;\n'
     : ''
   const gcpTypeDef =
-    exportableRCC || exportableCN ? '\n\ntype GCP = GlobalClassesProps;' : ''
+    exportableRCCs || exportableCN ? '\n\ntype GCP = GlobalClassesProps;' : ''
 
   const componentsPropsDefinition =
-    exportableRCC || exportableCN
+    exportableRCCs || exportableCN
       ? '\n' + helpers.getClassInterfacesDefinition(components)
       : ''
 
@@ -148,7 +147,7 @@ function rccLoader(content, map, meta) {
     !!componentsPropsDefinition || !!gcpTypeDef || cnTtypeDef ? '\n' : ''
 
   const rccContent =
-    exportableRCC || exportableCN
+    exportableRCCs || exportableCN
       ? helpers.createStringContent([
           `${rccSeparator}${componentsPropsDefinition}${gcpTypeDef}${cnTtypeDef}`,
           'const data = styleParser(_style);',
@@ -158,10 +157,10 @@ function rccLoader(content, map, meta) {
       : ''
 
   const rccImport =
-    exportableRCC || exportableCN
+    exportableRCCs || exportableCN
       ? helpers.createStringContent([
           `import { styleParser } from 'typed-classnames/core';`,
-          exportableRCC
+          exportableRCCs
             ? `import { RCC } from 'typed-classnames/dist/src/typings';\n`
             : ''
         ])
