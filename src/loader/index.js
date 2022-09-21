@@ -50,7 +50,7 @@ function rccLoader(content, map, meta) {
 
   if (!shouldCompile) return
 
-  const components = { GlobalClasses: helpers.getEmptyComponentData() }
+  const components = { __: helpers.getEmptyComponentData() }
 
   let styleModuleType = ''
   classNamesArray.forEach((className) => {
@@ -72,8 +72,8 @@ function rccLoader(content, map, meta) {
     return content
   }
 
-  // const hasGlobalProps = helpers.getHasGlobalProps(components)
-  components.GlobalClasses.hasProps = true // always with className
+  const hasEmptyClassProps = helpers.getHasEmptyClassProps(components)
+  components.__.hasProps = hasEmptyClassProps
 
   const styleContent = exportableStyle
     ? helpers.createStringContent([
@@ -93,22 +93,17 @@ function rccLoader(content, map, meta) {
 
       const separator = prev ? ';\n  ' : ''
 
-      const hasProps = helpers.getHasProps({
-        components,
-        root: componentName,
-        options
-      })
+      const hasProps = helpers.getHasOwnProps(components, componentName)
       // updating component Data with hasProps
       componentData.hasProps = hasProps
 
       const ownTypeDefinition = hasProps
         ? `${helpers.toKebabCase(componentName)}Props`
         : '{}'
-      const gcpPropDefinition = hasProps ? `GCP & ${ownTypeDefinition}` : 'GCP'
 
       const jjContent = `${separator}${helpers.toKebabCase(
         componentName
-      )}: ${type}<${gcpPropDefinition}>`
+      )}: ${type}<${ownTypeDefinition}>`
 
       return `${prev}${jjContent}`
     }, '')

@@ -1,26 +1,17 @@
 // return a dictionary of component keys which value is its extensions array
 export const findComponentKeys = (globalSearch: string) => {
-  const componentsKeys: { [K: string]: { extensions: string[] } } = {}
+  const componentsKeys = new Set<string>([])
   // starts with a-Z,
   // not contains double dashes (zero or more) or is before double dashes
   const reg = /^[a-z]((?!--|_ext_).)*(?=--|_ext_)?/gim
 
   globalSearch.replace(reg, (...args) => {
     const [componentName] = args
-
-    if (!componentsKeys[componentName]) {
-      const extRegex = new RegExp(
-        // `(?<=^${componentName}_ext_).+?(?=(--.+)*$)`,
-        `(?<=^${componentName}_ext_)((?!--|_ext_).)+$`,
-        'gim'
-      )
-      const extensions = globalSearch.match(extRegex) || []
-      componentsKeys[componentName] = { extensions }
-    }
+    componentsKeys.add(componentName)
     return ''
   })
 
-  return componentsKeys
+  return Array.from(componentsKeys)
 }
 
 const toCamelCase = (str: string) =>
@@ -63,23 +54,4 @@ export const findComponentPropsMap = (
   })
 
   return propsMap
-}
-
-export const checkRecursiveExtensions = (
-  root: string,
-  components: { [key: string]: { extensions: string[] } },
-  treeKeys: string[] = [root]
-) => {
-  const { extensions } = components[root]
-
-  if (new Set(treeKeys).size !== treeKeys.length) {
-    const errMsg = `\nERROR - recursive extensions: ${treeKeys.join(
-      ' extends '
-    )}\n`
-    throw new Error(errMsg)
-  }
-  extensions.forEach((parentName) => {
-    checkRecursiveExtensions(parentName, components, [parentName, ...treeKeys])
-  })
-  return true
 }

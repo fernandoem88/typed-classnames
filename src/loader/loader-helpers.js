@@ -5,24 +5,7 @@ const pathSeparator = path.sep
 
 function addParsedClassNameData(className, components) {
   const [cn, ...propsKeys] = className.split('--')
-  const componentName = cn || 'GlobalClasses'
-
-  if (componentName.includes('_ext_')) {
-    const [childName, parentName] = componentName.split('_ext_')
-
-    components[childName] = components[childName] || {
-      ...getEmptyComponentData()
-    }
-
-    const { extensions } = components[childName]
-
-    components[parentName] = components[parentName] || {
-      ...getEmptyComponentData()
-    }
-
-    extensions.add(parentName)
-    return
-  }
+  const componentName = cn || '__'
 
   components[componentName] = components[componentName] || {
     ...getEmptyComponentData()
@@ -40,7 +23,7 @@ function addParsedClassNameData(className, components) {
     memoKey += `--${propKey}`
 
     const isTernary = propKey.includes('_as_')
-    if (propKey === 'DEFAULT' || classNamesMemo.has(memoKey)) {
+    if (classNamesMemo.has(memoKey)) {
       // don't do nothing
     } else if (isTernary) {
       const [ternaryValue, ternaryKey] = propKey.split('_as_')
@@ -85,44 +68,30 @@ function createStringContent(arr = [], separator = '\n') {
 // css module types
 function createStyleType(className, prevContent = '') {
   // const [root] = className.split('--')
-  if (
-    className !== '--DEFAULT' &&
-    !className.includes('_ext_')
-    // && !root.includes('-')
-  ) {
-    const styleKey = className.includes('-') ? `"${className}"` : className
-    const separator = prevContent ? '\n  ' : ''
-    return `${prevContent}${separator}${styleKey}: string;`
-  }
-  return prevContent
+
+  const styleKey = className.includes('-') ? `"${className}"` : className
+  const separator = prevContent ? '\n  ' : ''
+  return `${prevContent}${separator}${styleKey}: string;`
 }
 
 function getClassInterfacesDefinition(components) {
   return Object.entries(components).reduce((prevInterfaceDef, entry) => {
     const [componentName, componentData] = entry
-    const { props, extensions, classNamesPropsMapping, hasProps } =
-      componentData
+    const { props, classNamesPropsMapping, hasProps } = componentData
 
-    if (!hasProps) return prevInterfaceDef
+    if (!hasProps || !componentName || componentName === '__')
+      return prevInterfaceDef
 
     const propsContent = getComponentPropertiesDef(
       props,
-      classNamesPropsMapping,
-      componentName === 'GlobalClasses'
+      classNamesPropsMapping
     )
 
-    let extensionString = Array.from(extensions)
-      .filter((ext) => !!components[ext]?.hasProps)
-      .map((extName) => `${toKebabCase(extName)}Props`)
-      .join(', ')
-    if (extensionString.trim()) {
-      extensionString = `extends ${extensionString} `
-    }
     const lastNewLine = propsContent ? '\n' : ''
     const firstNewLine = prevInterfaceDef ? '\n\n' : ''
     return `${prevInterfaceDef}${firstNewLine}export interface ${toKebabCase(
       componentName
-    )}Props ${extensionString}{${propsContent}${lastNewLine}}`
+    )}Props {${propsContent}${lastNewLine}}`
   }, '')
 }
 
@@ -145,12 +114,7 @@ function getComponentByName(components, componentName) {
   return component || getEmptyComponentData()
 }
 
-function getComponentPropertiesDef(
-  props,
-  classNamesPropsMapping,
-  isGlobalClassName
-) {
-  const cn = isGlobalClassName ? '\n  className?: string;' : ''
+function getComponentPropertiesDef(props, classNamesPropsMapping) {
   const propsContent = Object.entries(props)
     .map((propEntry) => {
       const [propKey, propType] = propEntry
@@ -158,13 +122,12 @@ function getComponentPropertiesDef(
       return `\n  ${camelCaseProp}?: ${propType};`
     })
     .join('')
-  return cn + propsContent
+  return propsContent
 }
 
 function getEmptyComponentData() {
   return {
     props: {},
-    extensions: new Set([]),
     // to help avoiding props duplications in the component interface
     classNamesMemo: new Set([]),
     // { "$props-key": "Component--class-name" }
@@ -199,70 +162,8 @@ function getExportTypes(resource, options) {
   return { rccs, style, $cn }
 }
 
-function getHasGlobalProps(components) {
-  return !!Object.keys(components.GlobalClasses?.props ?? {}).length
-}
-
-function getHasProps({ root, options, components, treeKeys = [root] }) {
-  const componentData = getComponentByName(components, root)
-  if (!componentData) {
-    return false
-  }
-  const { extensions } = componentData
-  const parentsArr = Array.from(extensions)
-  const hasProps =
-    getHasOwnProps(components, root) ||
-    parentsArr.some((parentName) =>
-      getHasProps({
-        components,
-        root: parentName,
-        treeKeys: [...treeKeys, parentName],
-        options
-      })
-    )
-  return hasProps
-}
-
-function getRecursiveErrorMessage({
-  options,
-  components,
-  root,
-  treeKeys = [root]
-}) {
-  const { _resource } = options
-  if (new Set(treeKeys).size !== treeKeys.length) {
-    const errMsg1 = `recursive extensions in ${_resource.replace('\\', '/')}`
-    const loop = treeKeys.join(' ==> ')
-    const errorMsg = createStringContent([
-      `import { toRCC } from "rcc-loader/dist/rcc-core"`,
-      `import _style from "${_resource.replace('\\', '/')}"`,
-      `\n// 1: Change your classes definition to avoid the following infinite loop:`,
-      `// ${loop}`,
-      `const errorMsg = "${errMsg1}"`,
-      `console.error(errorMsg)`,
-      '\n// 2: once done, remove the following line',
-      `throw new Error(errorMsg)`,
-      '\nexport const style = _style as any',
-      '\nexport default toRCC(_style as any)'
-    ])
-
-    throw new Error(errorMsg)
-  }
-  const componentData = getComponentByName(components, root)
-  if (!componentData) {
-    return
-  }
-  const { extensions } = componentData
-  const parentsArr = Array.from(extensions)
-  const errorMessage = parentsArr.some((parentName) =>
-    getRecursiveErrorMessage({
-      components,
-      root: parentName,
-      treeKeys: [...treeKeys, parentName],
-      options
-    })
-  )
-  return errorMessage
+function getHasEmptyClassProps(components) {
+  return !!Object.keys(components.__?.props ?? {}).length
 }
 
 function getHasOwnProps(components, componentName) {
@@ -327,9 +228,7 @@ module.exports = {
   getDevDebugPrefix,
   getEmptyComponentData,
   getExportTypes,
-  getHasGlobalProps,
-  getRecursiveErrorMessage,
-  getHasProps,
+  getHasEmptyClassProps,
   getHasOwnProps,
   getNewFileName,
   getShouldCompileFromHash,
