@@ -160,8 +160,8 @@ function rccLoader(content, map, meta) {
   const rccImport =
     exportableRCC || exportableCN
       ? helpers.createStringContent([
-          `import { styleParser } from 'rcc-loader/dist/rcc-core';`,
-          `import { RCC } from 'rcc-loader/dist/src/typings';\n`
+          `import { styleParser } from 'typed-classnames/dist/rcc-core';`,
+          `import { RCC } from 'typed-classnames/dist/src/typings';\n`
         ])
       : ''
 
