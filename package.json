@@ -7,7 +7,7 @@
     "email": "vs_fernando@yahoo.fr",
     "url": "https://github.com/fernandoem88"
   },
-  "description": "react css components loader - easy way to use css module in react components with typescript",
+  "description": "typed classnames loader - easy way to use css module classnames in react components with typescript",
   "license": "MIT",
   "repository": "https://github.com/fernandoem88/typed-classnames",
   "main": "dist/loader.umd.js",
