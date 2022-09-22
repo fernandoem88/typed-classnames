@@ -29,8 +29,10 @@ export const createComponentsData = (style: any) => {
 
       const componentClassName = Object.entries($cn || {}).reduce(
         (finalClassName, [$prop, propValue]: any) => {
-          if (!propValue) return finalClassName
-          const dirtyClass = propClassMapping[$prop] || ''
+          //
+          const dirtyClass = propClassMapping[$prop]
+          if (!propValue || !dirtyClass) return finalClassName
+
           const styleKey = dirtyClass.replace('[?]', propValue) || ''
           const cleanClass = style[styleKey]
           return cleanClass ? finalClassName + ' ' + cleanClass : finalClassName
