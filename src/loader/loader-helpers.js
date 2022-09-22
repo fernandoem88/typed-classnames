@@ -76,22 +76,22 @@ function createStyleType(className, prevContent = '') {
 
 function getClassInterfacesDefinition(components) {
   return Object.entries(components).reduce((prevInterfaceDef, entry) => {
-    const [componentName, componentData] = entry
+    const [componentKey, componentData] = entry
     const { props, classNamesPropsMapping, hasProps } = componentData
 
-    if (!hasProps || !componentName || componentName === '__')
-      return prevInterfaceDef
+    if (!hasProps || !componentKey) return prevInterfaceDef
 
     const propsContent = getComponentPropertiesDef(
       props,
       classNamesPropsMapping
     )
 
+    const componentName =
+      componentKey === '__' ? componentKey : toKebabCase(componentKey)
+
     const lastNewLine = propsContent ? '\n' : ''
     const firstNewLine = prevInterfaceDef ? '\n\n' : ''
-    return `${prevInterfaceDef}${firstNewLine}export interface ${toKebabCase(
-      componentName
-    )}Props {${propsContent}${lastNewLine}}`
+    return `${prevInterfaceDef}${firstNewLine}export interface ${componentName}Props {${propsContent}${lastNewLine}}`
   }, '')
 }
 
@@ -151,15 +151,13 @@ function getExportTypes(resource, options) {
   if (typeof exports === 'function') {
     const paths = resource.split(pathSeparator)
     const fileName = paths.pop()
-    const {
-      rccs = false,
-      style = false,
-      $cn = false
-    } = exports(fileName, paths.join(pathSeparator))
-    return { rccs, style, $cn }
+    const { style = false, $cn = false } = exports(
+      fileName,
+      paths.join(pathSeparator)
+    )
+    return { style, $cn }
   }
-  const { rccs = false, style = false, $cn = false } = exports
-  return { rccs, style, $cn }
+  return exports || { style: false, $cn: false }
 }
 
 function getHasEmptyClassProps(components) {

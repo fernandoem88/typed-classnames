@@ -1,18 +1,4 @@
 // use only defined classes in the default class
-.--DEFAULT {
-  :not(.btn):not(.selected) {
-    letter-spacing: 18px;
-  }
-}
-
-// global props
-.--font-size-28 {
-  font-size: 28px;
-}
-// global props
-.--font-size-52 {
-  font-size: 52px;
-}
 
 .root {
   height: 100%;

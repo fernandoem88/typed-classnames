@@ -1,5 +1,4 @@
 import React from 'react'
-
 import { toPascalCase } from './proxy-helpers'
 import { findComponentKeys, findComponentPropsMap } from './classnames-parsers'
 
@@ -10,12 +9,12 @@ export const createComponentsData = (style: any) => {
   const componentPropsKeys = {} as { [componentName: string]: string[] }
   const emptyClassNamesMap = findComponentPropsMap(search, '')
 
-  const emptyKey = Object.keys(emptyClassNamesMap).length ? ['__'] : []
+  if (Object.keys(emptyClassNamesMap).length) componentsKeys.push('__')
 
   const $cn: Record<
     string,
-    ($cn: { className?: string; [k: string]: any }) => string
-  > = componentsKeys.concat(emptyKey).reduce((prev, componentKey) => {
+    (props: { className?: string; [k: string]: any }) => string
+  > = componentsKeys.reduce((prev, componentKey) => {
     //
     const isEmptyKey = componentKey === '__'
     const componentName = isEmptyKey ? componentKey : toPascalCase(componentKey)
@@ -23,17 +22,17 @@ export const createComponentsData = (style: any) => {
       ? emptyClassNamesMap
       : findComponentPropsMap(search, componentKey)
     componentPropsKeys[componentName] = Object.keys(propClassMapping)
-    //
+    const rootClass = style[componentKey] || ''
     const getClassNames = ({ className: inputClassName, ...$cn }: any) => {
       //
       const componentClassName = Object.entries($cn || {}).reduce(
-        (finalClassName, [$prop, propValue]) => {
-          const dirtyClass = propClassMapping[$prop as string]
-          const cleanClass =
-            style[dirtyClass.replace('[?]', propValue as string) || '']
+        (finalClassName, [$prop, propValue]: any) => {
+          const dirtyClass = propClassMapping[$prop]
+          const styleKey = dirtyClass.replace('[?]', propValue) || ''
+          const cleanClass = style[styleKey]
           return cleanClass ? finalClassName + ' ' + cleanClass : finalClassName
         },
-        style[componentKey]
+        rootClass
       )
       return inputClassName
         ? componentClassName + ' ' + inputClassName
@@ -53,23 +52,17 @@ export const createComponentsData = (style: any) => {
     const componentName = isEmptyKey ? componentKey : toPascalCase(componentKey)
     const PROPS_KEYS_ARR = componentPropsKeys[componentName]
     const CSSComponent: React.FC = React.forwardRef(function (props: any, ref) {
-      const {
-        children,
-        $cn: { className, ...$cnProps } = { className: undefined },
-        ...rest
-      } = props
-
-      const classDeps = PROPS_KEYS_ARR.map(
-        (k) => $cnProps?.[k]
-      ) as React.DependencyList
+      //
+      const { children, $cn: jj$CN, ...rest } = props
+      const { className, ...$cnProps } = jj$CN || { className: undefined }
+      const inputClassName = className ? className + ' ' : ''
+      const classDeps = PROPS_KEYS_ARR.map((k) => $cnProps?.[k])
 
       const computedClassName = React.useMemo(
         () => $cn[componentName]($cnProps),
         // eslint-ignore-next-line react-hooks/exhaustive-deps
-        classDeps
+        classDeps as React.DependencyList
       )
-
-      const inputClassName = className ? className + ' ' : ''
 
       return (
         <Element
@@ -92,6 +85,7 @@ export const createComponentsData = (style: any) => {
 
   return {
     $cn,
-    createCSSCompponent
+    createCSSCompponent,
+    componentsKeys
   }
 }
