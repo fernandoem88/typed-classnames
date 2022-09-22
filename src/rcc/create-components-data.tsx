@@ -22,9 +22,11 @@ export const createComponentsData = (style: any) => {
       ? emptyClassNamesMap
       : findComponentPropsMap(search, componentKey)
     componentPropsKeys[componentName] = Object.keys(propClassMapping)
+
     const rootClass = style[componentKey] || ''
-    const getClassNames = ({ className: inputClassName, ...$cn }: any) => {
+    const getClassNames = ({ className: inputClassName, ...$cn }: any = {}) => {
       //
+
       const componentClassName = Object.entries($cn || {}).reduce(
         (finalClassName, [$prop, propValue]: any) => {
           const dirtyClass = propClassMapping[$prop]

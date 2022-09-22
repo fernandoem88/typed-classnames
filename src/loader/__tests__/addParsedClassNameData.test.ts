@@ -30,11 +30,4 @@ describe('parse and add className using addParsedClassNameData utility', () => {
       'Btn--lg_as_size'
     )
   })
-
-  it('should parse a className extension', () => {
-    helpers.addParsedClassNameData('DeleteBtn_ext_Btn', components)
-    expect(components.DeleteBtn).toBeDefined()
-    expect(components.Btn).toBeDefined()
-    expect(components.DeleteBtn.extensions.has('Btn')).toBeTruthy()
-  })
 })
