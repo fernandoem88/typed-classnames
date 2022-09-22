@@ -1,6 +1,4 @@
-import { RCC } from '../typings'
 import { htmlTagsProxy, prefixProxy, toPascalCase } from './proxy-helpers'
-
 import { createComponentsData } from './create-components-data'
 
 export const styleParser = (style: any) => {
