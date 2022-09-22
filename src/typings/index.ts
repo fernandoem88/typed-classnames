@@ -32,5 +32,13 @@ export declare const styleParser: (style: any) => {
   }
   rccs: {
     [component: string]: RCC<any>
-  } & {__prefix__?: string}
+  } & { __prefix__?: string }
 }
+
+export type RCCs<R extends Record<string, (props: any) => string>> = {
+  [K in keyof R]: RCC<Parameters<R[K]>[0]>
+} & { __prefix__?: string }
+
+export type ClassNamesParser<P = {}> = (
+  $cn?: P & { className?: string }
+) => string

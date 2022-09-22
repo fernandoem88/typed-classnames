@@ -18,13 +18,9 @@ function rccLoader(content, map, meta) {
 
   options._exportable = helpers.getExportTypes(this.resource, options)
   options._logger = this.getLogger()
-  const {
-    style: exportableStyle,
-    $cn: exportableCN,
-    rccs: exportableRCCs
-  } = options._exportable
+  const { style: exportableStyle, $cn: exportableCN } = options._exportable
 
-  if (!exportableRCCs && !exportableStyle && !exportableCN) {
+  if (!exportableStyle && !exportableCN) {
     options._logger('rcc loader disabled')
     return content
   }
@@ -50,30 +46,18 @@ function rccLoader(content, map, meta) {
 
   if (!shouldCompile) return
 
-  const components = { GlobalClasses: helpers.getEmptyComponentData() }
+  const components = { __: helpers.getEmptyComponentData() }
 
   let styleModuleType = ''
   classNamesArray.forEach((className) => {
     styleModuleType = helpers.createStyleType(className, styleModuleType)
-    if (exportableRCCs || exportableCN) {
+    if (exportableCN) {
       helpers.addParsedClassNameData(className, components)
     }
   })
 
-  try {
-    Object.keys(components).forEach((root) =>
-      helpers.getRecursiveErrorMessage({ options, root, components, hashTag })
-    )
-  } catch (error) {
-    utils.fs.writeFileSync(
-      options._outputFilePath,
-      `${error.message}\n\n// ${hashTag}`
-    )
-    return content
-  }
-
-  // const hasGlobalProps = helpers.getHasGlobalProps(components)
-  components.GlobalClasses.hasProps = true // always with className
+  const hasEmptyClassProps = helpers.getHasEmptyClassProps(components)
+  if (!hasEmptyClassProps) delete components.__
 
   const styleContent = exportableStyle
     ? helpers.createStringContent([
@@ -84,87 +68,59 @@ function rccLoader(content, map, meta) {
       ])
     : ''
 
-  const getItemsDefinition = (type = 'RCC') => {
+  const getItemsDefinition = () => {
     return Object.entries(components).reduce((prev, entry) => {
-      const [componentName, componentData] = entry
-      if (componentName === 'GlobalClasses') {
-        return prev
-      }
+      const [componentKey, componentData] = entry
+
+      const isEmptyComponent = componentKey === '__'
+      const componentName = isEmptyComponent
+        ? componentKey
+        : helpers.toKebabCase(componentKey)
 
       const separator = prev ? ';\n  ' : ''
 
-      const hasProps = helpers.getHasProps({
-        components,
-        root: componentName,
-        options
-      })
-      // updating component Data with hasProps
+      const hasProps = helpers.getHasOwnProps(components, componentKey)
       componentData.hasProps = hasProps
 
-      const ownTypeDefinition = hasProps
-        ? `${helpers.toKebabCase(componentName)}Props`
-        : '{}'
-      const gcpPropDefinition = hasProps ? `GCP & ${ownTypeDefinition}` : 'GCP'
-
-      const jjContent = `${separator}${helpers.toKebabCase(
-        componentName
-      )}: ${type}<${gcpPropDefinition}>`
+      const jjTypeDef = hasProps
+        ? `ClassNamesParser<${componentName}Props>`
+        : 'ClassNamesParser'
+      const jjContent = `${separator}${componentName}: ${jjTypeDef}`
 
       return `${prev}${jjContent}`
     }, '')
   }
-  const rccNewLine = exportableCN ? '\n' : ''
 
-  const rccComponentsImplementation = exportableRCCs
+  const rccComponentsImplementation = exportableCN
     ? helpers.createStringContent([
-        `${rccNewLine}const cssComponents = data.rccs as {`,
-        `  ${getItemsDefinition('RCC')}`,
+        '\nexport const $cn = data.$cn as {',
+        `  ${getItemsDefinition()}`,
         '};',
+        `\nconst cssComponents = data.rccs as RCCs<typeof $cn>;`,
         '\nexport default cssComponents;'
       ])
     : ''
 
-  const $cnImplementation = exportableCN
+  const componentsPropsDefinition = exportableCN
+    ? '\n' + helpers.getClassInterfacesDefinition(components)
+    : ''
+
+  const rccSeparator = componentsPropsDefinition ? '\n' : ''
+
+  const rccContent = exportableCN
     ? helpers.createStringContent([
-        '\nexport const $cn = data.$cn as {',
-        `  ${getItemsDefinition('CN')}`,
-        '};'
+        `${rccSeparator}${componentsPropsDefinition}`,
+        '\nconst data = styleParser(_style);',
+        rccComponentsImplementation
       ])
     : ''
 
-  const cnTtypeDef = exportableCN
-    ? '\ntype CN<P> = (props?: P) => string;\n'
+  const rccImport = exportableCN
+    ? helpers.createStringContent([
+        `import { styleParser } from 'typed-classnames/core';`,
+        `import { ClassNamesParser, RCCs } from 'typed-classnames/dist/src/typings';\n`
+      ])
     : ''
-  const gcpTypeDef =
-    exportableRCCs || exportableCN ? '\n\ntype GCP = GlobalClassesProps;' : ''
-
-  const componentsPropsDefinition =
-    exportableRCCs || exportableCN
-      ? '\n' + helpers.getClassInterfacesDefinition(components)
-      : ''
-
-  const rccSeparator =
-    !!componentsPropsDefinition || !!gcpTypeDef || cnTtypeDef ? '\n' : ''
-
-  const rccContent =
-    exportableRCCs || exportableCN
-      ? helpers.createStringContent([
-          `${rccSeparator}${componentsPropsDefinition}${gcpTypeDef}${cnTtypeDef}`,
-          'const data = styleParser(_style);',
-          $cnImplementation,
-          rccComponentsImplementation
-        ])
-      : ''
-
-  const rccImport =
-    exportableRCCs || exportableCN
-      ? helpers.createStringContent([
-          `import { styleParser } from 'typed-classnames/core';`,
-          exportableRCCs
-            ? `import { RCC } from 'typed-classnames/dist/src/typings';\n`
-            : ''
-        ])
-      : ''
 
   const styleImport = `import _style from "./${resourceFileName}";`
 
@@ -198,6 +154,6 @@ const compile = (filePath, rootContext, options) => {
 
   rccLoader.bind(thisCtx)(content)
 }
-rccLoader.compile = compile
 
+rccLoader.compile = compile
 module.exports = rccLoader

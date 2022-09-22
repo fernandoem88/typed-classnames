@@ -90,7 +90,7 @@ this configuration will generate the following file content
 
 ```tsx
 import { styleParser } from 'typed-classnames/core'
-import { RCC } from 'typed-classnames/dist/src/typings'
+import { ClassNamesParser, RCCs } from 'typed-classnames/dist/src/typings'
 import _style from './my-app.module.scss'
 
 export interface GlobalClasses {
@@ -111,8 +111,6 @@ export interface DeleteBtnProps {
   disabled?: boolean
 }
 
-type GCP = GlobalClasses
-
 const data = styleParser(_style)
 
 export const $cn = data.$cn as {
@@ -121,17 +119,21 @@ export const $cn = data.$cn as {
   DeleteBtn: (props?: DeleteBtnProps) => string
 }
 
+const cssComponents = data.rccs as RCCs<typeof $cn>
+
+export default cssComponents
+
 // ##hash##
 ```
 
-NOTE: in case your IDE complains about "typed-classnames/core". you can add a declaration file to your project
+NOTE: in case your IDE lint complains about "typed-classnames/core". you should add a declaration file to your project.
 
 ```ts
 // index.d.ts
 declare module 'typed-classnames/core'
 ```
 
-now we can use it in our main component _MyComponent.tsx_
+now we can use the **$cn** utility in our main component _MyComponent.tsx_
 
 ```tsx
 import { $cn } from './my-app.rcc'
@@ -174,68 +176,44 @@ const MyComponent = ({
 }
 ```
 
-## exports option: rccs
-
-**rccs** stands for _react-css-components_ that are components that include already the **$cn** utility.
-let's change our test.js as follows
-
-```js
-// test.js
-const { styleCompiler } = require('typed-css-compponents')
-styleCompiler('./my-app.module.scss', __dirname, { exports: { rccs: true } })
-```
-
-now, if we run node ./test.js again, our generated file will look like follows:
+or we can use the cssComponents factory instead
 
 ```tsx
-import { styleParser } from 'typed-classnames/dist/rcc-core'
-import { RCC } from 'typed-classnames/dist/src/typings'
-import _style from './my-app.module.scss'
+import S, { $cn } from './my-app.rcc'
 
-export interface GlobalClasses {
-  className?: string
-}
-
-export interface RootProps {
-  darkMode?: boolean
-}
-
-export interface BtnProps {
-  smSize?: boolean
-  mdSize?: boolean
-  lgSize?: boolean
-}
-
-export interface DeleteBtnProps {
+const MyComponent = ({
+  darkMode,
+  disabled,
+  size
+}: {
+  darkMode: boolean
+  size?: 'sm' | 'md' | 'lg'
   disabled?: boolean
-}
-
-type GCP = GlobalClasses
-
-const data = styleParser(_style)
-
-const cssComponents = data.$rccs as {
-  Root: RCC<RootProps>
-  Btn: RCC<BtnProps>
-  DeleteBtn: RCC<DeleteBtnProps>
-}
-
-export default cssComponents
-
-// ##hash##
-```
-
-then we can use it like this
-
-```tsx
-import S from "./my-app.rcc"
-
-const MyApp = ({ darkMode, disabled }) => {
-  const cn1 = 'some other class names'
+}) => {
   return (
-    <S.Root.div $cn={{ darkMode, className: cn1 }}>
-    I am a div with .root.dark-mode? and .some.other.class.names
-      <S.DeleBtn.button $cn={{ disabled }} >disabled delete btn</S.DeleteBtn.button>
+    // pass our classNames values to the "$cn" prop
+    <S.Root.div $cn={{ darkMode }}>
+      <S.Btn.button $cn={{ className: 'extra class names' }}>
+        I am a button with .btn and .extra .class .names classes
+      </S.Btn.button>
+      <S.Btn.button
+        $cn={{
+          disabled,
+          smSize: size === 'sm',
+          mdSize: size === 'md'
+        }}
+      >
+        I am a button with variable size
+      </s.Btn.button>
+      // to extend another class, we need to use the $cn factory
+      <S.Delete.button
+        $cn={{
+          disabled,
+          className: $cn.Btn({ smSize: true })
+        }}
+      >
+        DeleteBtn will also have Btn classes
+      </S.Delete.button>
     </S.Root.div>
   )
 }
@@ -243,19 +221,19 @@ const MyApp = ({ darkMode, disabled }) => {
 
 # ClassNames definition
 
-in case we decide to use [$cn](#exports-option-$cn) or [cssComponents](#exports-option-rccs), some special definition can be useful
+in case we decide to use [$cn](#exports-option-$cn), understanding some special definition can be useful
 
 ## Component Class.
 
-the rcc component comes from the root class definition. Each _component class_ will be transformed to a **PascalCase**.
+the react-css-component name comes from **the root class definition**. Each _component class_ will be transformed to a **PascalCase**.
 
 ```scss
 .root {
-  // => Root component
+  // => Root
 }
 
 .item-wrapper {
-  // =>ItemWrapper component
+  // =>ItemWrapper
 }
 
 // Note!!!
@@ -267,7 +245,7 @@ the rcc component comes from the root class definition. Each _component class_ w
 .-content-wrapper {
   // => ContentWrapper
 }
-// to avoid confusion, we can directly define our component classes in PascalCase
+// to avoid confusion, we can also directly define our component classes in PascalCase
 .Root {
 }
 .ContentWrapper {
@@ -276,8 +254,8 @@ the rcc component comes from the root class definition. Each _component class_ w
 
 ## component property class
 
-this is the element modifier. it should start with the component root name followed by double dashes. Each _component property_ can be written in **kebab-case** (eg: .Component--prop-one).
-however, its output will be in **camelCase**
+A component property class is the element modifier. It should start with the component root name followed by double dashes. Each _component property_ can be written in **kebab-case** (eg: .Component--**prop-one**).
+However, its output will be in **camelCase**
 
 ```scss
 .Wrapper {
@@ -290,33 +268,6 @@ however, its output will be in **camelCase**
 // darkMode: that comes from .Wrapper--dark-mode
 // size: that comes from .Wrapper--size
 ```
-
-## global property class
-
-defining _[component property class](#component-property-class)_ without the root component name can be a typo (in case of a missing "_&_" for example) at the begining of the class.
-however, we consider it as a modifier for all components
-
-```scss
-.--flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.--font-size-lg {
-  font-size: 18px;
-}
-
-.Wrapper {
-}
-.Item {
-}
-// the $cn.Wrapper and the $cn.Item component will both have the global props
-// flexCenter?: boolean;
-// fontSizeLg?: boolean
-```
-
-anyway, if we are using only _$cn_ and not _cssComponents_, we don't need this approach at all, since we can create just a _global-classes_ and reuse it in our component when needed.
 
 ## ternary property class
 
@@ -332,7 +283,7 @@ some times we define a bunch of classes and want to use only one at the time exc
   }
 }
 
-// Btn component own props
+// color will be the props defined by the union type green and yellow
 // color?: 'green' | 'yellow'
 ```
 
@@ -348,79 +299,7 @@ export const MyApp = ({ color }: { color: 'yellow' | 'green' }) => {
 }
 ```
 
-## Component class extension
-
-in case we want to extends a class and overwrite other css properties, we can use the **\_ext\_** key.
-
-```scss
-.Btn {
-  border-radius: 3px;
-  box-shadow: 4px 4px grey;
-  &--disabled: {
-    pointer-events: none;
-  }
-}
-
-.PrimaryBtn,
-.PrimaryBtn_ext_Btn {
-  background: green;
-  color: white;
-}
-// PrimaryBtn_ext_Btn tells us that the PrimaryBtn we just defined should extend the Btn previously defined
-```
-
-an example of use in a tsx file
-
-```tsx
-import S, { $cn } from './my-app.rcc'
-
-export const MyApp = ({ disabled }: { disabled?: boolean }) => {
-  // $cn
-  return <button className={$cn.PrimaryBtn({ disabled })}>click me</button>
-  // or
-  // cssComponents
-  return <S.PrimaryBtn.button $cn={{ disabled }}>click me</S.PrimaryBtn.button>
-}
-```
-
-also, in this case, if we are just using $cn instead of cssComponents, this approach is not necessary since we can achieve the same behaviour by nesting the extenion in our class name
-
-```tsx
-<button
-  className={$cn.Primary({
-    disabled,
-    className: $cn.Btn({ disabled: true })
-  })}
->
-  Primary will also have Btn classes
-</button>
-```
-
-Note: recursive extensions will throw an error to avoid infinte loop
-
-```scss
-.Btn_ext_PrimaryBtn {
-}
-
-.PrimaryBtn_ext_Btn {
-}
-
-// Btn extends PrimaryBtn and PrimaryBtn extends Btn. this will create an infinite loop
-```
-
-## default css properties
-
-if for some particular reason, we want to have some default props for all components in the rcc context, we can use the **--DEFAULT** key.
-
-```scss
-.--DEFAULT {
-  font-family: 'Times New Roman', Times, serif;
-  padding: 0;
-  margin: 0;
-}
-```
-
-## with component
+## with a custom component
 
 we can bind a component with some css coomponents like this
 
@@ -438,14 +317,14 @@ const MyApp = ({ color }) => {
 
 # Component name prefix
 
-by default our _css component_ in react dev tools will appear like this: **<S.Root.div />**.
-we can set the rcc \_\_prefix\_\_ value to a more specific name, for example to have **<Card.Root.div />**
+by default our _css components_ in react dev tools will appear like this: **<S.Root.div />**.
+we can set their \_\_prefix\_\_ value to a more specific name, for example to have **<Card.Root.div />**
 
 ```tsx
 
 import Card from './my-style.rcc'
 
-(Card as any).__prefix__ = "Card."
+Card .__prefix__ = "Card."
 
 export const MyComponent = () => {
   return <Card.Root.div>Hello World</S.Root.div>
@@ -484,14 +363,13 @@ const nextConfig = {
              * exports: (required: { rcc: boolean, style: boolean, $cn: boolean } | Function).
              * at least one of the 3 parameters should be true
              * exports.style: false by default. set it to true in case we want to export ModuleStyle definitions.
-             * exports.$cn: false by default. set it to true in case we want to export $cn utility.
-             * exports.rcc: false by default. set it to false in case we dont want to export rcc components.
+             * exports.$cn: false by default. set it to true in case we want to export $cn and the cssComponents factories.
              
              *  we can use a function in case we want to set different values for given files/name templates
              * eg: (filename, fileDir) => /-eso\.module\.scss$/.test(filename) ? { style: true } : { $cn: true }
              * in this case, my-style-eso.module.scss for example will export only the ModuleStyle type
              **/
-            exports: { style: false, $cn: true, rcc: false },
+            exports: { style: false, $cn: true },
             // getOutputFileName: (optional), to generate file with different name then the defualt one.
             getOutputFileName: (filename, fileDir) =>
               `awesomename-${filename.replace('.module.scss', '')}`,
@@ -514,7 +392,7 @@ const nextConfig = {
 after setting up the config, we will first use the **styleParser** transformer in our react component. for example in _MyComponent.tsx_
 
 ```tsx
-import { styleParser } from 'typed-classnames/dist/rcc-core'
+import { styleParser } from 'typed-classnames/core'
 import style from './my-style.module.scss'
 
 // S type is an index { [key: string]: Record<HtmlTag, RCC<any>> }
@@ -527,7 +405,7 @@ export const MyComponent = () => {
 }
 ```
 
-after running the project, the _my-style.rcc.tsx_ file will be generated automatically so we can import the rcc components directly from it.
+after running the project, the _my-style.rcc.tsx_ file will be generated automatically so we can import the $cn and cssComponents directly from there.
 
 ```tsx
 // here S is fully typed
