@@ -1,6 +1,6 @@
 import { htmlTagsProxy, prefixProxy, toPascalCase } from './proxy-helpers'
 import { createComponentsData } from './create-components-data'
-import { ClassNamesParser, RCCs } from '../core'
+import { ClassNamesParser, RCCs } from '../../core'
 
 export const styleParser = (style: any) => {
   const { $cn, createCSSCompponent, componentsKeys } =

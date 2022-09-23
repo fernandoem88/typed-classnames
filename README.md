@@ -10,11 +10,15 @@
 
 # overview
 
-define a css stylesheet like this
+define a css stylesheet
 
 ```scss
 // style.module.scss
 .typography {
+  font-family: 'Times New Roman', Times, serif;
+  &--sans-serif {
+    font-family: Arial, Helvetica, sans-serif;
+  }
   &--bold {
     font-weight: bold;
   }
@@ -35,15 +39,15 @@ const MyApp = () => {
   const size = 'sm' // "lg"
   return (
     <div>
-      <S.Typography.p>p.typography</S.Typography.p>
-      <S.Typography.span $cn={{ bold: true }}>
-        span.typography--bold
+      <S.Typography.p> this is a p.typography element </S.Typography.p>
+      <S.Typography.span $cn={{ bold: true, sansSerif: true }}>
+        span bold and sans-serif
       </S.Typography.span>
       <S.Typography.span $cn={{ size }}>
-        span.typography--sm_as_size or span.typography--lg_as_size
+        a span with a variable size
       </S.Typography.span>
       <S.Typography.h1 $cn={{ size, className: 'my custom classnames' }}>
-        h1.typography--bold with other classnames
+        h1 with some other classnames
       </S.Typography.h1>
     </div>
   )

@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { styleParser } from '../rcc-core'
-import { ClassNamesParser, RCCs } from '../../core'
+import { ClassNamesParser, RCCs } from '../../../core'
 
 const styleArr = [
   '--DEFAULT',
