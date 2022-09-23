@@ -17,22 +17,21 @@ export const htmlTagsProxy = (
     return createRCCWithTag as any
   }
 
+  const getHtmlTag = (target: any, prop: any) => {
+    if (isHTMLTag(prop)) {
+      const Component = createRCCWithTag(prop, prefixRef.value)
+      const newFC = React.forwardRef((props: any, ref) => (
+        <Component {...props} ref={ref} />
+      ))
+      newFC.displayName = `${(Component as any).displayName}.${prop}`
+      target[prop] = newFC
+    }
+    return target[prop]
+  }
+
   return new Proxy({} as any, {
-    get(target, prop: string, receiver) {
-      const tag = prop
-
-      if (target[tag]) return Reflect.get(target, prop, receiver)
-
-      if (isHTMLTag(tag)) {
-        const Component = createRCCWithTag(tag, prefixRef.value)
-        const newFC = React.forwardRef((props: any, ref) => (
-          <Component {...props} ref={ref} />
-        ))
-        newFC.displayName = `${(Component as any).displayName}.${tag}`
-        target[prop] = newFC
-      }
-
-      return Reflect.get(target, prop, receiver)
+    get(target, prop: string) {
+      return target[prop] || getHtmlTag(target, prop)
     }
   })
 }
