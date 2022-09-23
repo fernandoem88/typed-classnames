@@ -72,7 +72,7 @@ export const createComponentsData = (style: any) => {
     CSSComponent.displayName = `${prefix}${componentName}`
     if (IS_DEV) {
       CSSComponent.defaultProps = {
-        'data-kts-name': CSSComponent.displayName
+        'data-rcc-name': CSSComponent.displayName
       }
     }
     return CSSComponent

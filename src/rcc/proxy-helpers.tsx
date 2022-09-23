@@ -23,7 +23,7 @@ export const htmlTagsProxy = (
       newFC.displayName = `${newFC.displayName}.${prop}`
       if (IS_DEV) {
         newFC.defaultProps = {
-          'data-kts-name': newFC.displayName
+          'data-rcc-name': newFC.displayName
         }
       }
       target[prop] = newFC
