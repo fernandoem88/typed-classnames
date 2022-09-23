@@ -20,7 +20,7 @@
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
     "types": ["node", "mocha"],
-    "typeRoots": ["./src", "/node_modules/@types"],
+    "typeRoots": ["./src/typings", "/node_modules/@types"],
     "target": "es5",
     "skipLibCheck": true,
     "strict": true,

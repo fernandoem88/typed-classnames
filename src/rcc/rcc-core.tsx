@@ -1,5 +1,8 @@
 import { htmlTagsProxy, prefixProxy, toPascalCase } from './proxy-helpers'
 import { createComponentsData } from './create-components-data'
+import { RCCs } from '../typings'
+
+export type { RCCs, ClassNamesParser } from '../typings'
 
 export const styleParser = (style: any) => {
   const { $cn, createCSSCompponent, componentsKeys } =
@@ -21,8 +24,6 @@ export const styleParser = (style: any) => {
 
   return {
     $cn,
-    rccs: prefixProxy(rccsData, prefixRef) as {
-      [Key: string]: any
-    }
+    rccs: prefixProxy(rccsData, prefixRef) as RCCs<Record<string, any>>
   }
 }

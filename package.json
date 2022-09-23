@@ -1,6 +1,6 @@
 {
   "name": "typed-classnames",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://www.linkedin.com/in/fernando-ekutsu-mondele-67405484/",
   "author": {
     "name": "Fernando Ekutsu Mondele",
@@ -10,22 +10,25 @@
   "description": "typed classnames loader - easy way to use css classnames in react components with typescript",
   "license": "MIT",
   "repository": "https://github.com/fernandoem88/typed-classnames",
-  "main": "dist/loader.js",
+  "type": "commonjs",
+  "main": "dist/index.js",
   "source": [
-    "src/rcc/*.tsx"
+    "src/loader/index.js",
+    "src/loader/loader-helpers.js",
+    "src/rcc/rcc-core.js",
+    "src/rcc/rcc-core.tsx"
   ],
   "exports": {
-    ".": "./dist/loader.umd.js",
-    "./core": "./dist/rcc-core.umd.js",
-    "./dist/rcc-core.umd": "./dist/rcc-core.umd.js"
+    ".": "./dist/loader.js",
+    "./core": "./dist/rcc-core.js",
+    "./dist/rcc-core": "./dist/rcc-core.js"
   },
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "build": "tsc",
-    "build-mb": "microbundle ./src/loader/*.js ./src/rcc/*.tsx ./src/typings/index.d.ts --jsx React.createElement",
-    "start": "microbundle watch",
+    "build": "microbundle-crl --no-compress --format cjs",
+    "start": "microbundle-crl watch --no-compress --format modern,cjs",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint",
     "test:build": "run-s build",

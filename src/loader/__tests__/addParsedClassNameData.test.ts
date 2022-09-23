@@ -1,5 +1,5 @@
 import helpers from '../loader-helpers'
-import { LoaderComponentData } from '../..'
+import { LoaderComponentData } from '../../typings'
 
 describe('parse and add className using addParsedClassNameData utility', () => {
   let components = {} as { [key: string]: LoaderComponentData }
