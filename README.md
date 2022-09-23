@@ -8,6 +8,48 @@
 > - **fast classNames mapping**
 > - **easy to debug in React dev tools**
 
+# overview
+
+define a css stylesheet like this
+
+```scss
+// style.module.scss
+.typography {
+  &--bold {
+    font-weight: bold;
+  }
+  &--sm_as_size {
+    font-size: 15px;
+  }
+  &--lg_as_size {
+    font-size: 24px;
+  }
+}
+```
+
+and use it like this
+
+```tsx
+import S from './style.rcc'
+const MyApp = () => {
+  const size = 'sm' // "lg"
+  return (
+    <div>
+      <S.Typography.p>p.typography</S.Typography.p>
+      <S.Typography.span $cn={{ bold: true }}>
+        span.typography--bold
+      </S.Typography.span>
+      <S.Typography.span $cn={{ size }}>
+        span.typography--sm_as_size or span.typography--lg_as_size
+      </S.Typography.span>
+      <S.Typography.h1 $cn={{ size, className: 'my custom classnames' }}>
+        h1.typography--bold with other classnames
+      </S.Typography.h1>
+    </div>
+  )
+}
+```
+
 let's suppose to have the following scss file _my-app.module.scss_
 
 ```scss
@@ -89,8 +131,7 @@ loader.compile('./my-app.module.scss', __dirname, { exports: { $cn: true } })
 this configuration will generate the following file content
 
 ```tsx
-import { styleParser } from 'typed-classnames/core'
-import { ClassNamesParser, RCCs } from 'typed-classnames/dist/src/typings'
+import { ClassNamesParser, RCCs, styleParser } from 'typed-classnames/core'
 import _style from './my-app.module.scss'
 
 export interface RootProps {
@@ -99,8 +140,6 @@ export interface RootProps {
 
 export interface BtnProps {
   smSize?: boolean
-  mdSize?: boolean
-  lgSize?: boolean
 }
 
 export interface DeleteBtnProps {
@@ -120,13 +159,6 @@ const cssComponents = data.rccs as RCCs<typeof $cn>
 export default cssComponents
 
 // ##hash##
-```
-
-NOTE: in case your IDE lint complains about "typed-classnames/core". you should add a declaration file to your project.
-
-```ts
-// index.d.ts
-declare module 'typed-classnames/core'
 ```
 
 now we can use the **$cn** utility in our main component _MyComponent.tsx_
@@ -152,8 +184,7 @@ const MyComponent = ({
       <button
         className={$cn.btn({
           disabled,
-          smSize: size === 'sm',
-          mdSize: size === 'md'
+          smSize: size === 'sm'
         })}
       >
         I am a button with variable size
@@ -196,7 +227,6 @@ const MyComponent = ({
         $cn={{
           disabled,
           smSize: size === 'sm',
-          mdSize: size === 'md'
         }}
       >
         I am a button with variable size
@@ -277,11 +307,11 @@ some times we define a bunch of classes and want to use only one at the time exc
   }
 }
 
-// color will be the props, defined by the union type: green | yellow
+// the color props will be defined by the union type: green | yellow
 // color?: 'green' | 'yellow'
 ```
 
-we can then use it in tsx file like this
+then in the component
 
 ```tsx
 import S, { $cn } from './my-app.rcc'

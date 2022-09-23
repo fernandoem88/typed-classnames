@@ -117,8 +117,7 @@ function rccLoader(content, map, meta) {
 
   const rccImport = exportableCN
     ? helpers.createStringContent([
-        `import { styleParser } from 'typed-classnames/core';`,
-        `import { ClassNamesParser, RCCs } from 'typed-classnames/dist/src/typings';\n`
+        `import { ClassNamesParser, RCCs, styleParser } from 'typed-classnames/core';\n`
       ])
     : ''
 

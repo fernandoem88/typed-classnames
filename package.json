@@ -19,7 +19,7 @@
     "src/rcc/rcc-core.tsx"
   ],
   "exports": {
-    ".": "./dist/loader.js",
+    ".": "./dist/index.js",
     "./core": "./dist/rcc-core.js",
     "./dist/rcc-core": "./dist/rcc-core.js"
   },
@@ -90,6 +90,8 @@
     "typed-css-module"
   ],
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "core.d.ts"
   ]
 }

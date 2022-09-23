@@ -2,17 +2,12 @@ import { ComponentProps, ElementType } from 'react'
 
 export interface LoaderComponentData {
   props: { [key: string]: any }
-  extensions: Set<string>
+
   // to help avoiding props duplications in the component interface
   classNamesMemo: Set<string>
   // { "$props-key": "Component--class-name" }
   classNamesPropsMapping: { [key: string]: any }
   hasProps: boolean
-}
-
-export interface ComponentData {
-  extensions: string[]
-  propClassMapping: { [$prop: string]: string }
 }
 
 export type RCCElement<Props, Tag extends ElementType = 'div'> = (
@@ -25,14 +20,12 @@ export type RCC<Props> = {
 
 export declare const styleParser: (style: any) => {
   $cn: {
-    [component: string]: (props?: any) => string
+    [component: string]: ClassNamesParser<any>
   }
-  rccs: {
-    [component: string]: RCC<any>
-  } & { __prefix__?: string }
+  rccs: RCCs<Record<string, any>>
 }
 
-export type RCCs<R extends Record<string, (props: any) => string>> = {
+export type RCCs<R extends Record<string, ClassNamesParser>> = {
   [K in keyof R]: RCC<Parameters<R[K]>[0]>
 } & { __prefix__?: string }
 
