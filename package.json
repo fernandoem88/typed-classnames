@@ -7,11 +7,13 @@
     "email": "vs_fernando@yahoo.fr",
     "url": "https://github.com/fernandoem88"
   },
-  "description": "typed classnames loader - easy way to use css module classnames in react components with typescript",
+  "description": "typed classnames loader - easy way to use css classnames in react components with typescript",
   "license": "MIT",
   "repository": "https://github.com/fernandoem88/typed-classnames",
-  "main": "dist/loader.umd.js",
-  "source": "src/loader/index.js",
+  "main": "dist/loader.js",
+  "source": [
+    "src/rcc/*.tsx"
+  ],
   "exports": {
     ".": "./dist/loader.umd.js",
     "./core": "./dist/rcc-core.umd.js",
@@ -21,7 +23,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle ./src/loader/*.js ./src/rcc/*.tsx ./src/typings/index.d.ts --jsx React.createElement",
+    "build": "tsc",
+    "build-mb": "microbundle ./src/loader/*.js ./src/rcc/*.tsx ./src/typings/index.d.ts --jsx React.createElement",
     "start": "microbundle watch",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint",
@@ -72,7 +75,8 @@
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
     "sass": "^1.54.3",
-    "typescript": "^3.7.5"
+    "tsc": "^2.0.4",
+    "typescript": "^3.9.10"
   },
   "keywords": [
     "react",

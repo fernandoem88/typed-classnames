@@ -45,14 +45,14 @@ let's suppose to have the following scss file _my-app.module.scss_
 }
 ```
 
-for a quick test, let's define a test.js file where we can use the **styleCompiler** utility.
+let's try it first by defining the ollowing test.js file.
 
-## exports option: style
+## exports - style
 
 ```js
 // test.js
-const { styleCompiler } = require('typed-css-compponents')
-styleCompiler('./my-app.module.scss', __dirname, { exports: { style: true } })
+const loader = require('typed-css-compponents')
+loader.compile('./my-app.module.scss', __dirname, { exports: { style: true } })
 ```
 
 if we run **node ./test.js** on the terminal, the following file _my-app.rcc.tsx_ will be generated.
@@ -76,14 +76,14 @@ export const style: ModuleStyle = _style as any
 // ##hash## this hash is used for caching purpose: to not generate this file again if there are no changes
 ```
 
-## exports option: $cn
+## exports - $cn
 
-now if we change the configuration options to **exports: { $cn: true }**, the generated file will export a utility functions factory (**$cn**) where all classes are already mapped.
+now if we change the exports option to **{ $cn: true }**, the generated file will export a utility functions factory (**$cn**) where all classes are already mapped.
 
 ```js
 // test.js
-const { styleCompiler } = require('typed-css-compponents')
-styleCompiler('./my-app.module.scss', __dirname, { exports: { $cn: true } })
+const loader = require('typed-css-compponents')
+loader.compile('./my-app.module.scss', __dirname, { exports: { $cn: true } })
 ```
 
 this configuration will generate the following file content
@@ -92,10 +92,6 @@ this configuration will generate the following file content
 import { styleParser } from 'typed-classnames/core'
 import { ClassNamesParser, RCCs } from 'typed-classnames/dist/src/typings'
 import _style from './my-app.module.scss'
-
-export interface GlobalClasses {
-  className?: string
-}
 
 export interface RootProps {
   darkMode?: boolean
@@ -148,7 +144,7 @@ const MyComponent = ({
   disabled?: boolean
 }) => {
   return (
-    // pass our classNames values to the "$cn" prop
+    // pass your classNames values to the "$cn" prop
     <div className={$cn.Root({ darkMode })}>
       <button className={$cn.Btn({ className: 'extra class names' })}>
         I am a button with .btn and .extra .class .names classes
@@ -176,7 +172,7 @@ const MyComponent = ({
 }
 ```
 
-or we can use the cssComponents factory instead
+or we can use the cssComponents instead
 
 ```tsx
 import S, { $cn } from './my-app.rcc'
@@ -191,7 +187,7 @@ const MyComponent = ({
   disabled?: boolean
 }) => {
   return (
-    // pass our classNames values to the "$cn" prop
+    // pass your classNames values to the "$cn" prop
     <S.Root.div $cn={{ darkMode }}>
       <S.Btn.button $cn={{ className: 'extra class names' }}>
         I am a button with .btn and .extra .class .names classes
@@ -221,11 +217,9 @@ const MyComponent = ({
 
 # ClassNames definition
 
-in case we decide to use [$cn](#exports-option-$cn), understanding some special definition can be useful
-
 ## Component Class.
 
-the react-css-component name comes from **the root class definition**. Each _component class_ will be transformed to a **PascalCase**.
+**the root class definition** will be the component name and will be transformed to a **PascalCase**.
 
 ```scss
 .root {
@@ -254,7 +248,7 @@ the react-css-component name comes from **the root class definition**. Each _com
 
 ## component property class
 
-A component property class is the element modifier. It should start with the component root name followed by double dashes. Each _component property_ can be written in **kebab-case** (eg: .Component--**prop-one**).
+A component property class is the element modifier followed by double dashes (eg: .Component--**i-am-a-prop-1**).
 However, its output will be in **camelCase**
 
 ```scss
@@ -265,8 +259,8 @@ However, its output will be in **camelCase**
   }
 }
 // the $cn.Wrapper component will then have 2 props
-// darkMode: that comes from .Wrapper--dark-mode
-// size: that comes from .Wrapper--size
+// darkMode: from .Wrapper--dark-mode
+// size: from .Wrapper--size
 ```
 
 ## ternary property class
@@ -283,7 +277,7 @@ some times we define a bunch of classes and want to use only one at the time exc
   }
 }
 
-// color will be the props defined by the union type green and yellow
+// color will be the props, defined by the union type: green | yellow
 // color?: 'green' | 'yellow'
 ```
 
@@ -324,7 +318,7 @@ we can set their \_\_prefix\_\_ value to a more specific name, for example to ha
 
 import Card from './my-style.rcc'
 
-Card .__prefix__ = "Card."
+Card.__prefix__ = "Card."
 
 export const MyComponent = () => {
   return <Card.Root.div>Hello World</S.Root.div>
