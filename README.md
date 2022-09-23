@@ -10,7 +10,7 @@
 
 # overview
 
-define a css stylesheet
+if you define a css stylesheet like this
 
 ```scss
 // style.module.scss
@@ -31,7 +31,7 @@ define a css stylesheet
 }
 ```
 
-and use it like this
+you can use it like this
 
 ```tsx
 import S from './style.rcc'
@@ -39,22 +39,24 @@ const MyApp = () => {
   const size = 'sm' // "lg"
   return (
     <div>
-      <S.Typography.p> this is a p.typography element </S.Typography.p>
+      <S.Typography.p>
+        this is a "p" with the "typography" className
+      </S.Typography.p>
       <S.Typography.span $cn={{ bold: true, sansSerif: true }}>
-        span bold and sans-serif
+        span, bold and sans-serif
       </S.Typography.span>
       <S.Typography.span $cn={{ size }}>
-        a span with a variable size
+        span with a given size (sm or lg)
       </S.Typography.span>
       <S.Typography.h1 $cn={{ size, className: 'my custom classnames' }}>
-        h1 with some other classnames
+        h1, with a given size and some other classnames
       </S.Typography.h1>
     </div>
   )
 }
 ```
 
-let's suppose to have the following scss file _my-app.module.scss_
+for a quick test, let's suppose to have the following scss file _my-app.module.scss_
 
 ```scss
 .root {
@@ -91,7 +93,7 @@ let's suppose to have the following scss file _my-app.module.scss_
 }
 ```
 
-let's try it first by defining the ollowing test.js file.
+now let's define the following _test.js_ file to test different options.
 
 ## exports - style
 
