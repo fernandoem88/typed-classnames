@@ -1,6 +1,7 @@
 import React from 'react'
 import { toPascalCase } from './proxy-helpers'
 import { findComponentKeys, findComponentPropsMap } from './classnames-parsers'
+import { IS_DEV } from './constants'
 
 export const createComponentsData = (style: any) => {
   const search = Object.keys(style).join('\n') // multilines
@@ -69,6 +70,11 @@ export const createComponentsData = (style: any) => {
     })
 
     CSSComponent.displayName = `${prefix}${componentName}`
+    if (IS_DEV) {
+      CSSComponent.defaultProps = {
+        'data-kts-name': CSSComponent.displayName
+      }
+    }
     return CSSComponent
   }
 

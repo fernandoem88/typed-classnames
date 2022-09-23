@@ -174,3 +174,5 @@ export const EMPTY_SVG_TAGS = {
   use: undefined,
   view: undefined
 }
+
+export const IS_DEV = process.env.NODE_ENV === 'development'

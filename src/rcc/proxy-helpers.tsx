@@ -1,5 +1,5 @@
 import React from 'react'
-import { EMPTY_HTML_TAGS, EMPTY_SVG_TAGS } from './constants'
+import { EMPTY_HTML_TAGS, EMPTY_SVG_TAGS, IS_DEV } from './constants'
 
 const isHTMLTag = (tag: string) =>
   tag in EMPTY_HTML_TAGS || tag in EMPTY_SVG_TAGS
@@ -21,6 +21,11 @@ export const htmlTagsProxy = (
     if (isHTMLTag(prop)) {
       const newFC = createRCCWithTag(prop, prefixRef.value)
       newFC.displayName = `${newFC.displayName}.${prop}`
+      if (IS_DEV) {
+        newFC.defaultProps = {
+          'data-kts-name': newFC.displayName
+        }
+      }
       target[prop] = newFC
       return newFC
     }
