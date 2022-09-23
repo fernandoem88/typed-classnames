@@ -22,8 +22,9 @@ export const htmlTagsProxy = (
       const newFC = createRCCWithTag(prop, prefixRef.value)
       newFC.displayName = `${newFC.displayName}.${prop}`
       target[prop] = newFC
+      return newFC
     }
-    return target[prop]
+    return undefined
   }
 
   return new Proxy({} as any, {
