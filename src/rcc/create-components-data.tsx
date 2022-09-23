@@ -6,7 +6,7 @@ export const createComponentsData = (style: any) => {
   const search = Object.keys(style).join('\n') // multilines
 
   const componentsKeys = findComponentKeys(search)
-  const componentPropsKeys = {} as { [componentName: string]: string[] }
+  // const componentPropsKeys = {} as { [componentName: string]: string[] }
   const emptyClassNamesMap = findComponentPropsMap(search, '')
 
   if (Object.keys(emptyClassNamesMap).length) componentsKeys.push('__')
@@ -21,7 +21,7 @@ export const createComponentsData = (style: any) => {
     const propClassMapping = isEmptyKey
       ? emptyClassNamesMap
       : findComponentPropsMap(search, componentKey)
-    componentPropsKeys[componentName] = Object.keys(propClassMapping)
+    // componentPropsKeys[componentName] = Object.keys(propClassMapping)
 
     const rootClass = style[componentKey] || ''
     const getClassNames = ({ className: inputClassName, ...$cn }: any = {}) => {
@@ -55,26 +55,14 @@ export const createComponentsData = (style: any) => {
   ) => {
     const isEmptyKey = componentKey === '__'
     const componentName = isEmptyKey ? componentKey : toPascalCase(componentKey)
-    const PROPS_KEYS_ARR = componentPropsKeys[componentName]
+    // const PROPS_KEYS_ARR = componentPropsKeys[componentName]
     const CSSComponent: React.FC = React.forwardRef(function (props: any, ref) {
       //
       const { children, $cn: jj$CN, ...rest } = props
-      const { className, ...$cnProps } = jj$CN || { className: undefined }
-      const inputClassName = className ? className + ' ' : ''
-      const classDeps = PROPS_KEYS_ARR.map((k) => $cnProps?.[k])
-
-      const computedClassName = React.useMemo(
-        () => $cn[componentName]($cnProps),
-        // eslint-ignore-next-line react-hooks/exhaustive-deps
-        classDeps as React.DependencyList
-      )
+      const computedClassName = $cn[componentName](jj$CN)
 
       return (
-        <Element
-          {...rest}
-          ref={ref}
-          className={inputClassName + computedClassName}
-        >
+        <Element {...rest} ref={ref} className={computedClassName}>
           {children}
         </Element>
       )

@@ -22,7 +22,7 @@ export declare const styleParser: (style: any) => {
   $cn: {
     [component: string]: ClassNamesParser<any>
   }
-  rccs: RCCs<Record<string, any>>
+  rccs: any
 }
 
 export type RCCs<R extends Record<string, ClassNamesParser>> = {
