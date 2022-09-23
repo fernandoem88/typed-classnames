@@ -19,11 +19,8 @@ export const htmlTagsProxy = (
 
   const getHtmlTag = (target: any, prop: any) => {
     if (isHTMLTag(prop)) {
-      const Component = createRCCWithTag(prop, prefixRef.value)
-      const newFC = React.forwardRef((props: any, ref) => (
-        <Component {...props} ref={ref} />
-      ))
-      newFC.displayName = `${(Component as any).displayName}.${prop}`
+      const newFC = createRCCWithTag(prop, prefixRef.value)
+      newFC.displayName = `${newFC.displayName}.${prop}`
       target[prop] = newFC
     }
     return target[prop]
