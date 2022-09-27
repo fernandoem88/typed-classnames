@@ -1,13 +1,18 @@
 import React from 'react'
 import { toPascalCase } from './proxy-helpers'
 import { findComponentKeys, findComponentPropsMap } from './classnames-parsers'
-import { IS_DEV } from './constants'
+
+const parseInputClassName = (
+  className?: string,
+  initialClassName: string = ''
+) => {
+  return className ? initialClassName + ' ' + className : initialClassName
+}
 
 export const createComponentsData = (style: any) => {
   const search = Object.keys(style).join('\n') // multilines
 
   const componentsKeys = findComponentKeys(search)
-  // const componentPropsKeys = {} as { [componentName: string]: string[] }
   const emptyClassNamesMap = findComponentPropsMap(search, '')
 
   if (Object.keys(emptyClassNamesMap).length) componentsKeys.push('__')
@@ -22,12 +27,10 @@ export const createComponentsData = (style: any) => {
     const propClassMapping = isEmptyKey
       ? emptyClassNamesMap
       : findComponentPropsMap(search, componentKey)
-    // componentPropsKeys[componentName] = Object.keys(propClassMapping)
 
     const rootClass = style[componentKey] || ''
     const getClassNames = ({ className: inputClassName, ...$cn }: any = {}) => {
       //
-
       const componentClassName = Object.entries($cn || {}).reduce(
         (finalClassName, [$prop, propValue]: any) => {
           //
@@ -38,11 +41,9 @@ export const createComponentsData = (style: any) => {
           const cleanClass = style[styleKey]
           return cleanClass ? finalClassName + ' ' + cleanClass : finalClassName
         },
-        rootClass
+        parseInputClassName(inputClassName, rootClass)
       )
-      return inputClassName
-        ? componentClassName + ' ' + inputClassName
-        : componentClassName
+      return componentClassName
     }
 
     prev[componentName] = getClassNames
@@ -50,37 +51,19 @@ export const createComponentsData = (style: any) => {
   }, {} as any)
 
   const createCSSCompponent = (
-    componentKey: string,
     Element: string,
-    prefix: string = 'S.'
+    getClassName: (props: any) => string
   ) => {
-    const isEmptyKey = componentKey === '__'
-    const componentName = isEmptyKey ? componentKey : toPascalCase(componentKey)
-    // const PROPS_KEYS_ARR = componentPropsKeys[componentName]
     const CSSComponent: React.FC = React.forwardRef(function (props: any, ref) {
       //
-      const { children, $cn: jj$CN, ...rest } = props
-      const computedClassName = $cn[componentName](jj$CN)
+      const { $cn, ...rest } = props
+      const computedClassName = getClassName($cn)
 
-      return (
-        <Element {...rest} ref={ref} className={computedClassName}>
-          {children}
-        </Element>
-      )
+      return <Element {...rest} ref={ref} className={computedClassName} />
     })
 
-    CSSComponent.displayName = `${prefix}${componentName}`
-    if (IS_DEV) {
-      CSSComponent.defaultProps = {
-        'data-rcc-name': CSSComponent.displayName
-      }
-    }
     return CSSComponent
   }
-
-  const withCreator = createCSSCompponent as any
-  withCreator.__with = (component: any) =>
-    createCSSCompponent(component, withCreator.__prefix__.value)
 
   return {
     $cn,

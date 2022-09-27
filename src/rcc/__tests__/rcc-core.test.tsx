@@ -48,6 +48,18 @@ describe('components classnames and props mapping', () => {
     ).toBe('btn btn--sm_as_size wrapper pippo')
   })
 
+  it.only('should not proxy more than one time', async () => {
+    const Div = S.Wrapper.__with('div')
+    render(
+      <React.Fragment>
+        <Div>I am a wrapper</Div>
+        <Div>I am a wrapper</Div>
+        <Div>I am a wrapper</Div>
+      </React.Fragment>
+    )
+    expect(true).toBe(true)
+  })
+
   it('should render Wrapper component with the correct classname', async () => {
     render(<S.Wrapper.div>I am a wrapper</S.Wrapper.div>)
     const el = await screen.findByText('I am a wrapper')

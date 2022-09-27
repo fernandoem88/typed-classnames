@@ -9,17 +9,14 @@ export const toPascalCase = (str: string) =>
     match.toUpperCase().replace('-', '')
   )
 
-export const htmlTagsProxy = (
-  createRCCWithTag: (tag: string, prefix: string) => React.FC,
-  prefixRef: { value: string }
-) => {
+export const htmlTagsProxy = (createRCCWithTag: (tag: string) => React.FC) => {
   if (typeof Proxy === 'undefined') {
     return createRCCWithTag as any
   }
 
   const getHtmlTag = (target: any, prop: any) => {
     if (isHTMLTag(prop)) {
-      const newFC = createRCCWithTag(prop, prefixRef.value)
+      const newFC = createRCCWithTag(prop)
       newFC.displayName = `${newFC.displayName}.${prop}`
       if (IS_DEV) {
         newFC.defaultProps = {
