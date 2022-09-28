@@ -1,5 +1,3 @@
-import { ComponentProps, ElementType } from 'react'
-
 export interface LoaderComponentData {
   props: { [key: string]: any }
 
@@ -10,24 +8,11 @@ export interface LoaderComponentData {
   hasProps: boolean
 }
 
-export type RCCElement<Props, Tag extends ElementType = 'div'> = (
-  props: { $cn?: Props } & Omit<ComponentProps<Tag>, 'className'>
-) => JSX.Element
-
-export type RCC<Props> = {
-  [K in keyof JSX.IntrinsicElements]: RCCElement<Props, K>
-} & { __with: <C extends ElementType>(Component: C) => RCCElement<Props, C> }
-
 export declare const styleParser: (style: any) => {
   $cn: {
     [component: string]: ClassNamesParser<any>
   }
-  rccs: any
 }
-
-export type RCCs<R extends Record<string, ClassNamesParser>> = {
-  [K in keyof R]: RCC<Parameters<R[K]>[0]>
-} & { __prefix__?: string }
 
 export type ClassNamesParser<P = {}> = (
   $cn?: P & { className?: string }

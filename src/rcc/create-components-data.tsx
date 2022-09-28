@@ -1,11 +1,11 @@
-import React from 'react'
-import { toPascalCase } from './proxy-helpers'
 import { findComponentKeys, findComponentPropsMap } from './classnames-parsers'
 
-const parseInputClassName = (
-  className?: string,
-  initialClassName: string = ''
-) => {
+const toPascalCase = (str: string) =>
+  str.replace(/^[a-z0-9]|-[a-z0-9]/g, (match) =>
+    match.toUpperCase().replace('-', '')
+  )
+
+const mergeClassnames = (className?: string, initialClassName: string = '') => {
   return className ? initialClassName + ' ' + className : initialClassName
 }
 
@@ -41,33 +41,14 @@ export const createComponentsData = (style: any) => {
           const cleanClass = style[styleKey]
           return cleanClass ? finalClassName + ' ' + cleanClass : finalClassName
         },
-        parseInputClassName(inputClassName, rootClass)
+        rootClass
       )
-      return componentClassName
+      return mergeClassnames(inputClassName, componentClassName)
     }
 
     prev[componentName] = getClassNames
     return prev
   }, {} as any)
 
-  const createCSSCompponent = (
-    Element: string,
-    getClassName: (props: any) => string
-  ) => {
-    const CSSComponent: React.FC = React.forwardRef(function (props: any, ref) {
-      //
-      const { $cn, ...rest } = props
-      const computedClassName = getClassName($cn)
-
-      return <Element {...rest} ref={ref} className={computedClassName} />
-    })
-
-    return CSSComponent
-  }
-
-  return {
-    $cn,
-    createCSSCompponent,
-    componentsKeys
-  }
+  return $cn
 }

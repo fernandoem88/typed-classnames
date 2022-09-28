@@ -8,7 +8,7 @@ const pathSeparator = path.sep
 
 const utils = { fs, path }
 
-function rccLoader(content, map, meta) {
+function typedClassNamesLoader(content, map, meta) {
   const options = this.getOptions()
 
   if (!options.enabled) return
@@ -21,7 +21,7 @@ function rccLoader(content, map, meta) {
   const { style: exportableStyle, $cn: exportableCN } = options._exportable
 
   if (!exportableStyle && !exportableCN) {
-    options._logger('rcc loader disabled')
+    options._logger('cn loader disabled')
     return content
   }
 
@@ -91,33 +91,24 @@ function rccLoader(content, map, meta) {
     }, '')
   }
 
-  const rccComponentsImplementation = exportableCN
-    ? helpers.createStringContent([
-        '\nexport const $cn = data.$cn as {',
-        `  ${getItemsDefinition()}`,
-        '};',
-        `\nconst cssComponents = data.rccs as RCCs<typeof $cn>;`,
-        '\nexport default cssComponents;'
-      ])
-    : ''
-
   const componentsPropsDefinition = exportableCN
     ? '\n' + helpers.getClassInterfacesDefinition(components)
     : ''
 
-  const rccSeparator = componentsPropsDefinition ? '\n' : ''
+  const cnSeparator = componentsPropsDefinition ? '\n' : ''
 
-  const rccContent = exportableCN
+  const cnContent = exportableCN
     ? helpers.createStringContent([
-        `${rccSeparator}${componentsPropsDefinition}`,
-        '\nconst data = styleParser(_style);',
-        rccComponentsImplementation
+        `${cnSeparator}${componentsPropsDefinition}`,
+        '\nexport const $cn = styleParser(_style) as {',
+        `  ${getItemsDefinition()}`,
+        '};'
       ])
     : ''
 
-  const rccImport = exportableCN
+  const cnImport = exportableCN
     ? helpers.createStringContent([
-        `import { ClassNamesParser, RCCs, styleParser } from 'typed-classnames/core';\n`
+        `import { ClassNamesParser, styleParser } from 'typed-classnames/core';\n`
       ])
     : ''
 
@@ -125,7 +116,7 @@ function rccLoader(content, map, meta) {
 
   utils.fs.writeFileSync(
     options._outputFilePath,
-    `${rccImport}${styleImport}${styleContent}${rccContent}\n\n// ${hashTag}`
+    `${cnImport}${styleImport}${styleContent}${cnContent}\n\n// ${hashTag}`
   )
   return content
 }
@@ -151,8 +142,8 @@ const compile = (filePath, rootContext, options) => {
     })
   }
 
-  rccLoader.bind(thisCtx)(content)
+  typedClassNamesLoader.bind(thisCtx)(content)
 }
 
-rccLoader.compile = compile
-module.exports = rccLoader
+typedClassNamesLoader.compile = compile
+module.exports = typedClassNamesLoader
