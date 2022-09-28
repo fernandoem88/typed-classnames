@@ -1,1 +1,1 @@
-module.exports = require('./rcc-core.tsx')
+module.exports = require('./rcc-core.ts')

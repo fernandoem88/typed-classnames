@@ -130,8 +130,8 @@ const nextConfig = {
 
 ## classNamesMapping
 
-for external libraries, we can use the **classNamesMapping** helper.
-see the following example
+for external libraries, we can use the **classNamesMapping** helper to create the className string.
+let's the following example
 
 ```ts
 import { classNamesMapping } from 'typed-classnames/core'

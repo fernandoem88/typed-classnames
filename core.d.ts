@@ -18,20 +18,24 @@ export type ClassNamesParser<P = {}> = (
   $cn?: P & { className?: string }
 ) => string
 
-export declare const classNamesMapping: <
-  T extends Record<
-    string,
-    | string
-    | {
-        [K: string]: string
-      }
-  >
+type ParseClassKey<K extends string> = K extends `${infer P1}-${infer P2}`
+  ? ParseClassKey<`${P1}${Capitalize<P2>}`>
+  : K
+
+export declare const classNamesMapping = <
+  T extends Record<string, string | { [K: string]: string }>
 >(
-  classnames?: T | undefined
-) => (
-  params?:
-    | (Params & {
-        className?: string | undefined
-      })
-    | undefined
-) => string
+  classnames?: T
+) => {
+  type Params = {
+    [K in keyof T as ParseClassKey<K & string>]?: T[K] extends string
+      ? boolean
+      : keyof T[K]
+  }
+
+  return (
+    params?: Params & {
+      className?: string
+    }
+  ) => string
+}
