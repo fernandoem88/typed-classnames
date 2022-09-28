@@ -9,7 +9,7 @@ const mergeClassnames = (className?: string, initialClassName: string = '') => {
   return className ? initialClassName + ' ' + className : initialClassName
 }
 
-export const createComponentsData = (style: any) => {
+export const styleParser = (style: any) => {
   const search = Object.keys(style).join('\n') // multilines
 
   const componentsKeys = findComponentKeys(search)

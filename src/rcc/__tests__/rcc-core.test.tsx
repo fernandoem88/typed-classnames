@@ -1,7 +1,5 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { styleParser } from '../rcc-core'
-import { ClassNamesParser, RCCs } from '../../../core'
+import { styleParser, classNamesMapping } from '../rcc-core'
+import { ClassNamesParser } from '../../../core'
 
 const styleArr = [
   '--DEFAULT',
@@ -13,7 +11,6 @@ const styleArr = [
   'btn',
   'btn--sm_as_size',
   'btn--lg_as_size',
-
   'delete-btn',
   'delete-btn_ext_btn',
   'delete-btn--border-radius-2px',
@@ -21,7 +18,7 @@ const styleArr = [
   '--fs-15px_as_font-size'
 ]
 
-describe('components classnames and props mapping', () => {
+describe('classnames $cn', () => {
   const style = styleArr.reduce((prev, key) => {
     return { ...prev, [key]: key }
   }, {} as { [key: string]: string })
@@ -46,5 +43,30 @@ describe('components classnames and props mapping', () => {
     expect(
       $cn.Btn({ size: 'sm', className: $cn.Wrapper({ className: 'pippo' }) })
     ).toBe('btn btn--sm_as_size wrapper pippo')
+  })
+})
+
+describe('classnamesMapping', () => {
+  it('should test the classnamesMapping utility', () => {
+    const mui = classNamesMapping({
+      bgColor: 'mui--backgound',
+      flex: 'mui--flex',
+      color: {
+        primary: 'mui--color-primary',
+        secondary: 'mui--color-secondary'
+      }
+    })
+
+    expect(mui({ bgColor: true })).toBe('mui--backgound')
+    // should ignore a falsy value
+    expect(mui({ bgColor: true, flex: false })).toBe('mui--backgound')
+    // should resolve more than one truphy values correctly
+    expect(mui({ bgColor: true, flex: true })).toBe('mui--backgound mui--flex')
+    // should resolve the ternary value correctly
+    expect(mui({ color: 'primary' })).toBe('mui--color-primary')
+    // should append the classname string value
+    expect(mui({ color: 'secondary', className: 'mui mui--bold' })).toBe(
+      'mui mui--bold mui--color-secondary'
+    )
   })
 })

@@ -17,3 +17,21 @@ export declare const styleParser: (style: any) => {
 export type ClassNamesParser<P = {}> = (
   $cn?: P & { className?: string }
 ) => string
+
+export declare const classNamesMapping: <
+  T extends Record<
+    string,
+    | string
+    | {
+        [K: string]: string
+      }
+  >
+>(
+  classnames?: T | undefined
+) => (
+  params?:
+    | (Params & {
+        className?: string | undefined
+      })
+    | undefined
+) => string
