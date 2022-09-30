@@ -148,7 +148,8 @@ export const mui = classNamesMapping({
   color: {
     primary: 'mui--color-primary',
     secondary: 'mui--color-secondary'
-  }
+  },
+  size: { lg: 'mui--font-size-28px', sm: 'mui--font-size-15px' }
 })
 
 // then, we import and use it in some components
@@ -166,6 +167,8 @@ mui({ color: 'secondary' }) // => 'mui--color-secondary'
 // extra classnames added with "className" key
 mui({ color: 'secondary', className: 'class1 class2' }) // => 'class1 class2 mui--color-secondary'
 ```
+
+![screenshot](./typed-classnames-example.png)
 
 # License
 
