@@ -184,18 +184,17 @@ function getNewFileName(resource, options) {
   }
   const newFileName = fileName.replace(
     /(\.module)?\.(css|less|scss|sass)/g,
-    '.rcc'
+    '.typed'
   )
   return newFileName
 }
 
 function getShouldCompileFromHash({ classNames, options, resource, rootDir }) {
   const esoHash = options._exportable.style ? '#stl_expo; ' : ''
-  const rccHash = options._exportable.rccs ? '#rccs_expo; ' : ''
   const $cnHash = options._exportable.$cn ? '#$cn_expo; ' : ''
   const classesHash = `#clases=${classNames.join('|')};`
   const outputFilenameHash = `#ofn=${options._outputFileName};`
-  const newHash = `##hash## ${esoHash}${$cnHash}${rccHash}${classesHash}${outputFilenameHash}`
+  const newHash = `##hash## ${esoHash}${$cnHash}${classesHash}${outputFilenameHash}`
   if (fs.existsSync(options._outputFilePath)) {
     const fileContent = fs.readFileSync(options._outputFilePath, 'utf8')
     const oldHash = fileContent

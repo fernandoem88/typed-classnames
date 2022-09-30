@@ -1,5 +1,3 @@
-import { ComponentProps, ElementType } from 'react'
-
 export interface LoaderComponentData {
   props: { [key: string]: any }
 
@@ -10,25 +8,32 @@ export interface LoaderComponentData {
   hasProps: boolean
 }
 
-export type RCCElement<Props, Tag extends ElementType = 'div'> = (
-  props: { $cn?: Props } & Omit<ComponentProps<Tag>, 'className'>
-) => JSX.Element
-
-export type RCC<Props> = {
-  [K in keyof JSX.IntrinsicElements]: RCCElement<Props, K>
-} & { __with: <C extends ElementType>(Component: C) => RCCElement<Props, C> }
-
 export declare const styleParser: (style: any) => {
-  $cn: {
-    [component: string]: ClassNamesParser<any>
-  }
-  rccs: any
+  [component: string]: ClassNamesParser<any>
 }
-
-export type RCCs<R extends Record<string, ClassNamesParser>> = {
-  [K in keyof R]: RCC<Parameters<R[K]>[0]>
-} & { __prefix__?: string }
 
 export type ClassNamesParser<P = {}> = (
   $cn?: P & { className?: string }
 ) => string
+
+type ParseClassKey<K extends string> = K extends `${infer P1}-${infer P2}`
+  ? ParseClassKey<`${P1}${Capitalize<P2>}`>
+  : K
+
+export declare const classNamesMapping = <
+  T extends Record<string, string | { [K: string]: string }>
+>(
+  classnames?: T
+) => {
+  type Params = {
+    [K in keyof T as ParseClassKey<K & string>]?: T[K] extends string
+      ? boolean
+      : keyof T[K]
+  }
+
+  return (
+    params?: Params & {
+      className?: string
+    }
+  ) => string
+}
