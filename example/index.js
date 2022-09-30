@@ -1,5 +1,7 @@
-const rccLoader = require('../dist/loader')
+const rccLoader = require('../src/loader')
 
-rccLoader.compile('./style.scss', __dirname, { exports: { $cn: true } })
+rccLoader.compile('./style.scss', __dirname, {
+  exports: { $cn: true, style: false }
+})
 
-// to see the magic, run on terminal: node ./example/index.js
+// to see the magic, run on terminal: npm run example

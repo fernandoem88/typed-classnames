@@ -9,9 +9,7 @@ export interface LoaderComponentData {
 }
 
 export declare const styleParser: (style: any) => {
-  $cn: {
-    [component: string]: ClassNamesParser<any>
-  }
+  [component: string]: ClassNamesParser<any>
 }
 
 export type ClassNamesParser<P = {}> = (

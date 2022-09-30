@@ -15,13 +15,12 @@
   "source": [
     "src/loader/index.js",
     "src/loader/loader-helpers.js",
-    "src/rcc/rcc-core.js",
-    "src/rcc/rcc-core.ts"
+    "src/rcc/core.js",
+    "src/rcc/core.ts"
   ],
   "exports": {
     ".": "./dist/index.js",
-    "./core": "./dist/rcc-core.js",
-    "./dist/rcc-core": "./dist/rcc-core.js"
+    "./core": "./dist/core.js"
   },
   "engines": {
     "node": ">=10"

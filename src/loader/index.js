@@ -21,7 +21,9 @@ function typedClassNamesLoader(content, map, meta) {
   const { style: exportableStyle, $cn: exportableCN } = options._exportable
 
   if (!exportableStyle && !exportableCN) {
-    options._logger('cn loader disabled')
+    options._logger(
+      'typeed-classnames loader disabled: please set ($cn | style)exports options to true'
+    )
     return content
   }
 
@@ -68,7 +70,7 @@ function typedClassNamesLoader(content, map, meta) {
       ])
     : ''
 
-  const getItemsDefinition = () => {
+  const classNamesGettersDefinition = () => {
     return Object.entries(components).reduce((prev, entry) => {
       const [componentKey, componentData] = entry
 
@@ -91,25 +93,21 @@ function typedClassNamesLoader(content, map, meta) {
     }, '')
   }
 
-  const componentsPropsDefinition = exportableCN
-    ? '\n' + helpers.getClassInterfacesDefinition(components)
-    : ''
+  let cnContent = ''
 
-  const cnSeparator = componentsPropsDefinition ? '\n' : ''
-
-  const cnContent = exportableCN
-    ? helpers.createStringContent([
-        `${cnSeparator}${componentsPropsDefinition}`,
-        '\nexport const $cn = styleParser(_style) as {',
-        `  ${getItemsDefinition()}`,
-        '};'
-      ])
-    : ''
+  if (exportableCN) {
+    const classNamesGetters = classNamesGettersDefinition()
+    cnContent = helpers.createStringContent([
+      '\n',
+      helpers.getClassInterfacesDefinition(components),
+      '\nexport const $cn = styleParser(_style) as {',
+      `  ${classNamesGetters}`,
+      '};'
+    ])
+  }
 
   const cnImport = exportableCN
-    ? helpers.createStringContent([
-        `import { ClassNamesParser, styleParser } from 'typed-classnames/core';\n`
-      ])
+    ? `import { ClassNamesParser, styleParser } from 'typed-classnames/core';\n`
     : ''
 
   const styleImport = `import _style from "./${resourceFileName}";`

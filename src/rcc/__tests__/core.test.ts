@@ -1,4 +1,4 @@
-import { styleParser, classNamesMapping } from '../rcc-core'
+import { styleParser, classNamesMapping } from '../core'
 import { ClassNamesParser } from '../../../core'
 
 const styleArr = [
