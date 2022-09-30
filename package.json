@@ -1,13 +1,13 @@
 {
   "name": "typed-classnames",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "https://www.linkedin.com/in/fernando-ekutsu-mondele-67405484/",
   "author": {
     "name": "Fernando Ekutsu Mondele",
     "email": "vs_fernando@yahoo.fr",
     "url": "https://github.com/fernandoem88"
   },
-  "description": "typed classnames loader - easy way to use css classnames in react components with typescript",
+  "description": "typed classnames loader - easy way to use css classnames with typescript",
   "license": "MIT",
   "repository": "https://github.com/fernandoem88/typed-classnames",
   "type": "commonjs",
