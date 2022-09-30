@@ -130,14 +130,14 @@ const nextConfig = {
 
 ## classNamesMapping
 
-for external libraries, we can use the **classNamesMapping** helper to create the className string.
-let's the following example
+for external libraries, we can use the **classNamesMapping** helper that allows us to map classNames getting a utility we will use in our components to enable only the desired classes.
+let's see the following example
 
 ```ts
 import { classNamesMapping } from 'typed-classnames/core'
 
-// configuration / definition
-const mui = classNamesMapping({
+// first we define the classnames utility in a configuration file: eg in classnames.config.ts
+export const mui = classNamesMapping({
   // boolean values
   bgColor: 'mui--background',
   flex: 'mui--flex',
@@ -148,7 +148,7 @@ const mui = classNamesMapping({
   }
 })
 
-// usage in your component
+// then, we import and use it in some components
 
 mui({ bgColor: true }) // => 'mui--background'
 // since flex is falsy, the result won't change
